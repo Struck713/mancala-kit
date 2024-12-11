@@ -1,0 +1,10 @@
+{
+  "$schema": "https://www.partykit.io/schema.json",
+  "name": "mancala-kit-party",
+  "main": "party/main.ts",
+  "parties": {
+    "games": "party/games.ts",
+    "game": "party/game.ts"
+  },
+  "compatibilityDate": "2024-12-11"
+}
