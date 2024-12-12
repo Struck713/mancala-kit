@@ -4,7 +4,6 @@
     import PartySocket from "partysocket";
     import toast from "svelte-french-toast";
 
-    let username: string;
     const create = async () => {
       const res = await PartySocket.fetch(
           {
@@ -25,7 +24,7 @@
           return;
       }
 
-      await goto(`/play/${res.id}?username=${username}`);
+      await goto(`/play/${res.id}`);
     }
 
 </script>
@@ -34,15 +33,14 @@
     <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
             <h2 class="card-title">Mancala</h2>
-            <div class="flex flex-col px-2">
-                <div class="join">
-                    <input
-                        class="input input-bordered join-item"
-                        placeholder="Enter a username.."
-                        bind:value={username}
-                    />
-                    <button class="btn btn-accent join-item rounded-r-full" on:click={create}>Create game</button>
-                </div>
+            <div class="flex flex-col gap-2 px-2">
+                <p>
+                    At some point, there will be options here but for now, there
+                    aren't any
+                </p>
+                <button class="btn btn-accent rounded-full" on:click={create}
+                    >Create game</button
+                >
             </div>
         </div>
     </div>

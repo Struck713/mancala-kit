@@ -4,12 +4,13 @@
     import toast from "svelte-french-toast";
     import { PUBLIC_PARTYKIT_URL } from "$env/static/public";
     import { goto } from "$app/navigation";
+    import Game from "../../../components/Game.svelte";
 
     export let data;
 
     let open = false;
     let socket: PartySocket;
-    let username: string | null = data.username;
+    let username: string;
 
     onMount(async () => {
         const res = await PartySocket.fetch({
@@ -26,8 +27,6 @@
             toast.error("There is no game with that ID.");
             await goto("/play/");
         }
-
-        if (data.username) join()
     });
 
     const join = async () => {
@@ -40,7 +39,6 @@
             },
         });
 
-        socket.onmessage = (msg) => console.log(msg);
         socket.onopen = () => (open = true);
         socket.onerror = (err) => {
             toast.error(`Failed to connect to game server.`);
@@ -70,6 +68,6 @@
             </div>
         </div>
     {:else}
-        <p>Thanks for the code.</p>
+        <Game bind:socket={socket} />
     {/if}
 </div>
