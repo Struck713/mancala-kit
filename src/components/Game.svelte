@@ -1,32 +1,47 @@
-<script lang="ts" type="module">
+<script lang="ts">
     import type PartySocket from "partysocket";
     import type { ICanvas } from "pixi.js";
     import { onMount } from "svelte";
+    import { GamePacketType, type GamePacket } from "../../shared/packet"
 
     export let socket: PartySocket;
 
+    const sendPacket = (packet: GamePacket) => socket.send(JSON.stringify(packet));
+
     let canvas: ICanvas;
     onMount(async () => {
-        socket.onmessage = (msg) => console.log(msg);
-
         const PIXI = await import("pixi.js");
         const app = new PIXI.Application();
-        await app.init({ canvas: canvas, width: 640, height: 360 });
+        await app.init({ canvas: canvas, width: 800, height: 800, backgroundAlpha: 0 });
 
-        await PIXI.Assets.load("/sample.png");
-        let sprite = PIXI.Sprite.from("/sample.png");
-        app.stage.addChild(sprite);
+        await PIXI.Assets.load("/board.png");
 
-        let elapsed = 0.0;
-        // Tell our application's ticker to run a new callback every frame, passing
-        // in the amount of time that has passed since the last tick
-        app.ticker.add((ticker) => {
-            // Add the time to our total elapsed time
-            elapsed += ticker.deltaTime;
-            // Update the sprite's X position based on the cosine of our elapsed time.  We divide
-            // by 50 to slow the animation down a bit...
-            sprite.x = 100.0 + Math.cos(elapsed / 50.0) * 100.0;
+        const status = new PIXI.Text({
+            text: "Loading.."
         });
+        status.anchor.set(0.5, 0.5);
+        status.x = app.screen.width / 2;
+        status.y = app.screen.height / 5;
+        app.stage.addChild(status)
+
+
+        let board = PIXI.Sprite.from("/board.png");
+        app.stage.addChild(board);
+
+        board.scale.set(0.25, 0.25)
+        board.anchor.set(0.5, 0.5)
+        board.x = app.screen.width/2;
+        board.y = app.screen.height/2;
+
+        socket.onmessage = (msg) => {
+            const packet = JSON.parse(msg.data) as GamePacket
+            switch (packet.type) {
+                case GamePacketType.STATUS: status.text = packet.data as string; break;
+            }
+        };
+
+        sendPacket({ type: GamePacketType.READY })
+
     });
 </script>
 

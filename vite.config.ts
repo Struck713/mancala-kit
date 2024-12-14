@@ -6,4 +6,11 @@ export default defineConfig({
 	optimizeDeps: {
     include: ['pixi.js'],
   },
+  server: {
+    fs: {
+      allow: [
+        "./shared"
+      ]
+    }
+  }
 });

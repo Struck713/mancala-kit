@@ -1,8 +1,6 @@
 import type * as Party from "partykit/server";
 import { error, json, notFound, ok } from "./utils/response";
-import { GameState } from "./games";
-
-export const SINGLETON_ROOM_ID = "games";
+import { GamePacket, GamePacketType } from "../shared/packet";
 
 type GameConnectionState = { username: string, score: number }
 type GameConnection = Party.Connection<GameConnectionState>;
@@ -32,6 +30,17 @@ export default class GameServer implements Party.Server {
 
     conn.setState({ username, score: 0 });
     this.room.broadcast(`${username} joined the game.`)
+  }
+
+  async onMessage(message: string, conn: GameConnection) {
+      const packet = JSON.parse(message) as GamePacket | null;
+      if (packet?.type === GamePacketType.READY) {
+        this.sendPacket(conn, { type: GamePacketType.STATUS, data: "Waiting for players..." })
+      }
+  }
+
+  async sendPacket(conn: GameConnection, packet: GamePacket) {
+    return conn.send(JSON.stringify(packet))
   }
 
   // async onAlarm() {

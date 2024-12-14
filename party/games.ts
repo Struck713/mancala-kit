@@ -1,20 +1,9 @@
 import type * as Party from "partykit/server";
 import { error, json, notFound } from "./utils/response";
 import { nanoid } from "nanoid"
+import { GameInfo, GameState } from "../shared/packet";
 
 export const SINGLETON_ROOM_ID = "list";
-
-export enum GameState {
-  Waiting,
-  InProgress,
-  Ended
-}
-
-export type GameInfo = {
-  id: string;
-  state: GameState;
-  players: string[];
-};
 
 export default class GamesServer implements Party.Server {
   options: Party.ServerOptions = { hibernate: true };
@@ -39,8 +28,12 @@ export default class GamesServer implements Party.Server {
         const id = params.get("id")
         if (!id) return error("Please provide a code.")
 
+        if (id == "*") {
+          const games = await this.room.storage.list<GameInfo>();
+          return json([...games.values()]);
+        }
+
         const game = await this.room.storage.get<GameInfo>(id)
-        console.log(await this.room.storage.list<GameInfo>())
 
         if (!game)
           return error("That game does not exist.")

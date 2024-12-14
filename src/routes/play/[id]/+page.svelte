@@ -27,6 +27,8 @@
             toast.error("There is no game with that ID.");
             await goto("/play/");
         }
+
+        return (() => socket.close()) as any
     });
 
     const join = async () => {
@@ -37,10 +39,11 @@
             query: {
                 username,
             },
+
         });
 
         socket.onopen = () => (open = true);
-        socket.onerror = (err) => {
+        socket.onerror = () => {
             toast.error(`Failed to connect to game server.`);
             open = false;
         };
